@@ -1,0 +1,99 @@
+package com.trav.qa.util;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+import org.openqa.selenium.WebDriver;
+
+import java.io.BufferedReader;
+
+
+
+import com.frecrm.qa.base.TestBase;
+//import com.frecrm.qa.testcase.Map;
+
+public class TestUtils extends TestBase{
+	
+	public static String TESTDATA_SHEET_PATH = "src/main/java/com/frecrm/qa/testdata/testData.csv";
+
+	public TestUtils() throws IOException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public void switchWindow() {
+		// TODO Auto-generated method stub
+		String mainWindowHandle = driver.getWindowHandle();
+		for(String handle : driver.getWindowHandles()) {
+			if(!handle.equals(mainWindowHandle)) {
+				driver.switchTo().window(handle);
+				break;
+			}
+		}
+	}
+
+	public void switchWindow(WebDriver driver, int windowindex) {
+		java.util.Set<String> handles = driver.getWindowHandles();
+		java.util.List<String> handlesList = new java.util.ArrayList<>(handles);
+		driver.switchTo().window(handlesList.get(windowindex));
+		System.out.println("Switched to " + windowindex);
+	}
+	
+	public static Map<String, String> findValueForTestCase(String testCase, String[] headers) {
+		String csvData = readCSVDataFromFile(TESTDATA_SHEET_PATH);
+		String[] lines = csvData.split("\n");
+		String[] csvHeaders = lines[0].split(",");
+		int[] headerIndices = new int[headers.length];
+		for(int i=0; i<headers.length; i++) {
+			headerIndices[i] = -1;
+			for(int j=0;j<csvHeaders.length;j++) {
+				if(csvHeaders[j].trim().equals(headers[i])) {
+					headerIndices[i] = j;
+					break;
+				}
+			}
+		}
+		if(allHeadersFound(headerIndices)) {
+			Map<String,String> ValuesMap = new HashMap<>();
+			for(String line:lines) {
+				String[] columns = line.split(",");
+				if(columns.length > 0 && columns[0].trim().equals(testCase)) {
+					for(int i=0; i <headerIndices.length; i++) {
+						if(headerIndices[i] >=0 && headerIndices[i] < columns.length) {
+							ValuesMap.put(headers[i], columns[headerIndices[i]].trim());
+						}
+					}
+					return ValuesMap;
+				}
+				
+			}
+			
+		} return null;
+	
+	}
+
+	public static boolean allHeadersFound(int[] headerIndices) {
+		for(int index : headerIndices) {
+			if(index == -1) {
+				return false;
+			}
+		}return true;
+	}
+
+	public static String readCSVDataFromFile(String filePath) {
+		StringBuilder content = new StringBuilder();
+		try(BufferedReader br = new BufferedReader(new FileReader(filePath))){
+			String line;
+			while((line = br.readLine())!=null) {
+				content.append(line).append("\n");
+			}
+			
+		}catch(IOException e) {
+			e.printStackTrace();
+		}return content.toString();		
+	}
+	
+	
+
+}
