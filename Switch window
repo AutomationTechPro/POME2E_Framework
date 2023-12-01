@@ -1,0 +1,17 @@
+public void switchWindow() {
+		// TODO Auto-generated method stub
+		String mainWindowHandle = driver.getWindowHandle();
+		for(String handle : driver.getWindowHandles()) {
+			if(!handle.equals(mainWindowHandle)) {
+				driver.switchTo().window(handle);
+				break;
+			}
+		}
+	}
+
+	public void switchWindow(WebDriver driver, int windowindex) {
+		java.util.Set<String> handles = driver.getWindowHandles();
+		java.util.List<String> handlesList = new java.util.ArrayList<>(handles);
+		driver.switchTo().window(handlesList.get(windowindex));
+		System.out.println("Switched to " + windowindex);
+	}
